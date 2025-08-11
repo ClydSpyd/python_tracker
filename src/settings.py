@@ -41,8 +41,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'users',
     'corsheaders',
+    'users',
+    'tasks',
+    'habits',
+    'focus',
+    'core',
+    'media'
 ]
 
 REST_FRAMEWORK = {
@@ -60,11 +65,12 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
-    "https://fero.ngrok.dev"
+    "http://localhost:6969",
+    # "http://localhost:3000",
+    # "http://127.0.0.1:3000",
+    # "http://localhost:3001",
+    # "http://127.0.0.1:3001",
+    # "https://fero.ngrok.dev"
 ]
 
 CORS_ALLOW_CREDENTIALS = True

@@ -5,8 +5,11 @@ from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import MyTokenObtainPairSerializer, UserSerializer
+from .serializers import CustomTokenObtainPairSerializer, MyTokenObtainPairSerializer, UserSerializer
 from .authentication import CookieJWTAuthentication
+from rest_framework import generics
+
+from django.utils.dateparse import parse_datetime
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -39,7 +42,13 @@ class LoginView(TokenObtainPairView):
     # add custom claims to the token
     # serializer_class = MyTokenObtainPairSerializer
 
+    # custom serializer to alter TokenObtainPairSerializer class
+    # add custom default_error_message
+    serializer_class = CustomTokenObtainPairSerializer
+
+
     def post(self, request, *args, **kwargs):
+        
         # super is used to call the parent class method
         # in this case, TokenObtainPairView, augmented by my serializer_class
         response = super().post(request, *args, **kwargs)
@@ -79,6 +88,7 @@ class LoginView(TokenObtainPairView):
             )
             return cookie_response
 
+        print(response.data)
         return response
 
 # GET route to return user info based on token
@@ -92,8 +102,8 @@ class UserInfoView(APIView):
 
 # POST logout and remove http-only cookies
 class LogoutView(APIView):    
-    authentication_classes = [CookieJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [CookieJWTAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request):
         response = Response({"message": "Logout successful"}, status=status.HTTP_205_RESET_CONTENT)
@@ -132,3 +142,4 @@ class UserListView(APIView):
             return Response({"message": "No users found"}, status=status.HTTP_404_NOT_FOUND)
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    

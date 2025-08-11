@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+
+{% block title %}DJANGO_HOME{% endblock %}
+
+{% block head %}
+<style>
+    .container {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+        width: 100%;
+        margin: 0;
+    }
+
+    .button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        background-color: rgb(194, 194, 194);
+        cursor: pointer;
+        border-radius: 8px;
+        color: white;
+        margin-top: 10px;
+    }
+
+    .button:hover {
+        background-color: rgb(230, 230, 230);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1 style="color:rgb(179, 179, 179);">HELLO_WORLD.</h1>
+    <!-- <a href="/products"><button class="button">Task List</button></a> -->
+</div>
+{% endblock %}
