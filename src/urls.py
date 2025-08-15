@@ -8,5 +8,5 @@ urlpatterns = [
     path('api/tasks/', include('tasks.urls')),
     path('api/habits/', include('habits.urls')),
     path('api/focus/', include('focus.urls')),
-    path("api/media/", include("media.urls")),
+    path("api/wiki/", include("wiki.urls")),
 ]

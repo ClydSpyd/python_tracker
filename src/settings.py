@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'habits',
     'focus',
     'core',
-    'media'
+    'wiki'
 ]
 
 REST_FRAMEWORK = {
