@@ -5,8 +5,8 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
-from .serializers import MovieSerializer, SeriesSerializer, QuoteSerializer, BookSerializer
-from .models import Movie, Series, Quote, Book
+from ..serializers import MovieSerializer, SeriesSerializer, QuoteSerializer, BookSerializer
+from ..models import Movie, Series, Quote, Book
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from users.authentication import CookieJWTAuthentication
@@ -20,7 +20,6 @@ from requests import RequestException
 
 OMDB_API_KEY = '9d4b151c'
 OPENLIB_SEARCH = "https://openlibrary.org/search.json"
-BOOKS_API = "https://openlibrary.org/api/books"
 COVER_BASE = "https://covers.openlibrary.org/b"
 WORKS_API = "https://openlibrary.org"
 
@@ -283,26 +282,6 @@ class BookSearchView(APIView):
 
         return Response(results)
     
-def _extract_description(work_json):
-    desc = work_json.get("description")
-    if isinstance(desc, dict):
-        return desc.get("value")
-    if isinstance(desc, str):
-        return desc
-    return None
-
-
-from django.db import transaction
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-import requests
-from requests import RequestException
-
-# Expect these to be defined in your settings or module
-# BOOKS_API = "https://openlibrary.org/api/books"
-# WORKS_API = "https://openlibrary.org"
 
 class BookSaveView(APIView):
     """
