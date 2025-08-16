@@ -1,6 +1,5 @@
-
 from rest_framework import serializers
-from .models import Movie, Series, Quote
+from .models import Movie, Series, Quote, Book
 
 class MediaBaseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,3 +32,15 @@ class QuoteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You already have a quote with this quote and author.")
 
         return data
+    
+
+class BookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = ['title', 'olid', 'created_at', 'cover', 'year', 'edition_key', 'work_key', 'description', 'authors']
+        read_only_fields = ['created_at']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        validated_data['user'] = user
+        return super().create(validated_data)

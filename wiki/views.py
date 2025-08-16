@@ -5,14 +5,24 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
-from .serializers import MovieSerializer, SeriesSerializer, QuoteSerializer
-from .models import Movie, Series, Quote
+from .serializers import MovieSerializer, SeriesSerializer, QuoteSerializer, BookSerializer
+from .models import Movie, Series, Quote, Book
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from users.authentication import CookieJWTAuthentication
 from django.db import transaction
+import requests
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from requests import RequestException
+
 
 OMDB_API_KEY = '9d4b151c'
+OPENLIB_SEARCH = "https://openlibrary.org/search.json"
+BOOKS_API = "https://openlibrary.org/api/books"
+COVER_BASE = "https://covers.openlibrary.org/b"
+WORKS_API = "https://openlibrary.org"
 
 class MovieListView(generics.ListAPIView):
     serializer_class = MovieSerializer
@@ -168,41 +178,35 @@ class QuoteCreateView(generics.CreateAPIView):
         serializer.save(user=self.request.user)
 
 class WikiItemsListView(APIView):
-    def get(self, request):
-        movies = Movie.objects.all()
-        quotes = Quote.objects.all()
-        series = Series.objects.all()
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
 
-        # Serialize
+    def get(self, request):
+        user = request.user
+        movies = Movie.objects.filter(user=user)
+        quotes = Quote.objects.filter(user=user)
+        series = Series.objects.filter(user=user)
+        books = Book.objects.filter(user=user)
+
         movie_data = MovieSerializer(movies, many=True).data
         quote_data = QuoteSerializer(quotes, many=True).data
         series_data = SeriesSerializer(series, many=True).data
+        book_data = BookSerializer(books, many=True).data
 
-        # Add a type field for sorting and identification
         for m in movie_data:
             m['type'] = 'movie'
         for q in quote_data:
             q['type'] = 'quote'
         for s in series_data:
             s['type'] = 'series'
+        for b in book_data:
+            b['type'] = 'book'
 
-        # Combine and sort by 'created_at'
-        combined = movie_data + quote_data + series_data
+        combined = movie_data + quote_data + series_data + book_data
         combined_sorted = sorted(combined, key=lambda x: x.get('created_at'), reverse=True)
 
         return Response(combined_sorted)
     
-
-# views.py
-from urllib.parse import urlencode
-import requests
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-
-OPENLIB_SEARCH = "https://openlibrary.org/search.json"
-COVER_BASE = "https://covers.openlibrary.org/b"
-
 # Order of preference for building a cover URL
 def build_cover_url(doc):
     # 1) cover_i
@@ -277,8 +281,80 @@ class BookSearchView(APIView):
                 "edition_key": (d.get("edition_key") or [None])[0],
             })
 
-        return Response({
-            "query": q,
-            "count": len(results),
-            "results": results,
-        })
+        return Response(results)
+    
+def _extract_description(work_json):
+    desc = work_json.get("description")
+    if isinstance(desc, dict):
+        return desc.get("value")
+    if isinstance(desc, str):
+        return desc
+    return None
+
+
+from django.db import transaction
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+import requests
+from requests import RequestException
+
+# Expect these to be defined in your settings or module
+# BOOKS_API = "https://openlibrary.org/api/books"
+# WORKS_API = "https://openlibrary.org"
+
+class BookSaveView(APIView):
+    """
+    POST /api/books/save
+    body: {
+      "title": "Some Title",
+      "authors": ["Author 1", "Author 2"],
+      "year": 2001,
+      "cover": "https://covers.openlibrary.org/b/id/1234-L.jpg",
+      "work_key": "/works/OL893415W",
+      "olid": "OL10256217M",
+      "edition_key": "OL12345678M"
+    }
+    """
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+
+    def fetch_work_description(self, work_key: str | None) -> str | None:
+        """Fetch description from Open Library work endpoint."""
+        if not work_key:
+            return None
+        try:
+            r = requests.get(f"{WORKS_API}{work_key}.json", timeout=6)
+            r.raise_for_status()
+            data = r.json()
+        except RequestException:
+            return None
+
+        desc = data.get("description")
+        if isinstance(desc, dict):
+            return desc.get("value")
+        if isinstance(desc, str):
+            return desc
+        return None
+
+    @transaction.atomic
+    def post(self, request):
+        # Get base payload from request body
+        print(f"user from request: {request.user}")
+        payload = request.data.copy()
+
+        print(f"Received payload: {payload}")
+
+        work_key = payload.get("work_key")
+        description = self.fetch_work_description(work_key)
+
+        if description:
+            payload["description"] = description
+
+        # Serializer handles validation + saving
+        serializer = BookSerializer(data=payload, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        book = serializer.save(user=request.user)
+
+        return Response(BookSerializer(book).data, status=status.HTTP_201_CREATED)

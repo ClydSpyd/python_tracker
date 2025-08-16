@@ -62,3 +62,28 @@ class Quote(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['content', 'author'], name='unique_quote')
         ]
+
+# models.py
+from django.db import models
+
+class Book(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    authors = models.JSONField(null=True, blank=True)
+    cover = models.URLField(null=True, blank=True)
+    edition_key = models.CharField(max_length=50, null=True, blank=True)
+    olid = models.CharField(max_length=50, null=True, blank=True)
+    work_key = models.CharField(max_length=50, null=True, blank=True)
+    year = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['title']
+        verbose_name_plural = "Books"
+        constraints = [
+            models.UniqueConstraint(fields=['title'], name='unique_title')
+        ]

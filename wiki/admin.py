@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Movie, Series, Quote
+from .models import Movie, Series, Quote, Book
 
 class MovieAdmin(admin.ModelAdmin):
     list_display = ['id','title', 'year', 'imdb_id', 'user']
@@ -24,3 +24,11 @@ class QuoteAdmin(admin.ModelAdmin):
     list_filter = ['user']
 
 admin.site.register(Quote, QuoteAdmin)
+
+class BookAdmin(admin.ModelAdmin):
+    list_display = ['id', 'title', 'olid', 'user']
+    search_fields = ['title', 'olid', 'user__username']
+    readonly_fields = ['user', 'olid']
+    list_filter = ['user']
+
+admin.site.register(Book, BookAdmin)
