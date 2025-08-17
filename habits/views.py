@@ -51,8 +51,12 @@ class ToggleHabitRecord(APIView):
     authentication_classes = [CookieJWTAuthentication]
 
     def post(self, request):
-            habit_id = request.data.get("habitId")
+            print("Request query params:", request.data)
+            habit_id = request.data.get("habit_id")
             date = request.data.get("date")  # Expected in 'YYYY-MM-DD' format
+
+            print("Habit ID:", habit_id)
+            print("Date:", date)
 
             if not habit_id or not date:
                 return Response(
@@ -62,10 +66,14 @@ class ToggleHabitRecord(APIView):
 
             habit = get_object_or_404(Habit, id=habit_id, user=request.user)
 
+            print("Found habit:", habit)
+
             habit_record, created = HabitRecord.objects.get_or_create(
                 habit=habit,
                 date=date,
             )
+
+            print("Habit record:", habit_record)
 
             if not created:
                 # already exists -> delete it (toggle off)

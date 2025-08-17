@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Movie, Series, Quote, Book
+from .models import Movie, Series, Quote, Book, Link, PinnedItem
 
 class MovieAdmin(admin.ModelAdmin):
     list_display = ['id','title', 'year', 'imdb_id', 'user']
@@ -32,3 +32,19 @@ class BookAdmin(admin.ModelAdmin):
     list_filter = ['user']
 
 admin.site.register(Book, BookAdmin)
+
+class LinkAdmin(admin.ModelAdmin):
+    list_display = ['id', 'url', 'title', 'user']
+    search_fields = ['url', 'title', 'user__username']
+    readonly_fields = ['user']
+    list_filter = ['user']
+
+admin.site.register(Link, LinkAdmin)
+
+class PinnedItemAdmin(admin.ModelAdmin):
+    list_display = ['id', 'item_type', 'item_id', 'user']
+    search_fields = ['item_type', 'item_id', 'user__username']
+    readonly_fields = ['id', 'item_type', 'item_id', 'user']
+    list_filter = ['user']
+
+admin.site.register(PinnedItem, PinnedItemAdmin)

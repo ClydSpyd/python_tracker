@@ -63,9 +63,6 @@ class Quote(models.Model):
             models.UniqueConstraint(fields=['content', 'author'], name='unique_quote')
         ]
 
-# models.py
-from django.db import models
-
 class Book(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
@@ -87,3 +84,33 @@ class Book(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['title'], name='unique_title')
         ]
+
+class Link(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    url = models.URLField()
+    title = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = "Links"
+        constraints = [
+            models.UniqueConstraint(fields=['url'], name='unique_url')
+        ]
+
+class PinnedItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    item_type = models.CharField(max_length=50)
+    item_id = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'item_type', 'item_id')
+        verbose_name_plural = "Pinned Items"
+
+    def __str__(self):
+        return f"{self.user.username} pinned {self.item_type} with ID {self.item_id}"

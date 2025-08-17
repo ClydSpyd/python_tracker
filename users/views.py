@@ -4,15 +4,46 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .serializers import CustomTokenObtainPairSerializer, MyTokenObtainPairSerializer, UserSerializer
 from .authentication import CookieJWTAuthentication
-from rest_framework import generics
+from rest_framework.exceptions import AuthenticationFailed
 
 from django.utils.dateparse import parse_datetime
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+
+# Custom Token Refresh View to handle JWT refresh tokens in cookies
+class CookieTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get("refresh_token")
+        if not refresh_token:
+            return Response({"detail": "No refresh token"}, status=400)
+        # Inject refresh token into request data
+        request.data["refresh"] = refresh_token
+
+        try:
+            response = super().post(request, *args, **kwargs)
+        except AuthenticationFailed:
+            # Catch the exception and return 400 instead of 401 to avoid FE interceptor loop
+            return Response({"detail": "Invalid or expired refresh token"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if response.status_code == 200 and "access" in response.data:
+            access_token = response.data["access"]
+            cookie_response = Response({"access": access_token}, status=200)
+            cookie_response.set_cookie(
+                key="access_token",
+                value=access_token,
+                httponly=True,
+                secure=True,
+                samesite="None",
+                path="/",
+                max_age=15 * 60,  # 15 minutes
+            )
+            return cookie_response
+        return response
+
 
 # POST Register a new user
 class RegisterView(APIView):
