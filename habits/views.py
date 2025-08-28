@@ -109,7 +109,11 @@ class HabitDetailView(APIView):
 
     def patch(self, request, habit_id):
         habit = get_object_or_404(Habit, id=habit_id, user=request.user)
-        serializer = HabitSerializer(habit, data=request.data, partial=True)
+        data = request.data.copy()
+        # Map camelCase to snake_case for colorScheme from FE
+        if "colorScheme" in data:
+            data["color_scheme"] = data.pop("colorScheme")
+        serializer = HabitSerializer(habit, data=data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
