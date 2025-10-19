@@ -9,6 +9,8 @@ from django.shortcuts import get_object_or_404
 from datetime import datetime
 from .services import get_user_habits_with_completions
 from django.utils.timezone import now
+from django.utils.timezone import localdate
+from datetime import timedelta
 
 class CreateHabitView(APIView):
     permission_classes = [IsAuthenticated]
@@ -167,3 +169,29 @@ class UserHabitsWithCompletionsView(APIView):
         serializer = HabitWithRecordsSerializer(habits, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class UserHabitStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+
+    def get(self, request):
+
+        today = localdate()
+        start_of_week = today - timedelta(days=today.weekday())
+        end_of_week = start_of_week + timedelta(days=6)
+
+        habits = Habit.objects.filter(user=request.user)
+        total_target = sum(habit.target for habit in habits)
+
+        completions = HabitRecord.objects.filter(
+            habit__in=habits,
+            date__range=[start_of_week, end_of_week]
+        ).count()
+
+        return Response(
+            {
+                "total_target": total_target,
+                "total_completions_this_week": completions
+            },
+            status=status.HTTP_200_OK
+        )

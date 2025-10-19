@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CreateHabitView, ToggleHabitRecord, HabitListView, HabitDetailView, UserHabitsWithCompletionsView
+from .views import CreateHabitView, ToggleHabitRecord, HabitListView, HabitDetailView, UserHabitsWithCompletionsView, UserHabitStatsView
 
 urlpatterns = [
     path("<int:habit_id>/", HabitDetailView.as_view(), name="habit_detail_GET_PATCH"),
@@ -7,4 +7,5 @@ urlpatterns = [
     path("toggle/", ToggleHabitRecord.as_view(), name="toggle_habit_completion"),
     path("list/", HabitListView.as_view(), name="habit_list"),
     path("activity/", UserHabitsWithCompletionsView.as_view(), name="user_habits_with_completions"),
+    path("stats/", UserHabitStatsView.as_view(), name="user_habit_stats"),
 ]

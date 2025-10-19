@@ -12,6 +12,7 @@ from wiki.views import (
     PinnedItemListView,
     PinnedItemEnrichedListView
     )
+from wiki.views.pinned import PinnedItemDeleteView
 
 urlpatterns = [
     path("", WikiItemsListView.as_view(), name="wiki_items_list"),
@@ -26,5 +27,6 @@ urlpatterns = [
     path("pinned-items/add/", PinnedItemCreateView.as_view(), name="pinned_item_add"),
     path("pinned-items/", PinnedItemListView.as_view(), name="pinned_item_list"),
     path("pinned-items/enriched/", PinnedItemEnrichedListView.as_view(), name="pinned_item_enriched_list"),
+    path("pinned-items/delete/<int:pk>/", PinnedItemDeleteView.as_view(), name="pinned_item_delete"),
 
 ]

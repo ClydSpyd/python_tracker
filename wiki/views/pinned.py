@@ -3,6 +3,7 @@ from ..models import PinnedItem, PinnedItem
 from ..serializers import PinnedItemSerializer, PinnedItemEnrichedSerializer
 from rest_framework.permissions import IsAuthenticated
 from users.authentication import CookieJWTAuthentication
+from rest_framework.exceptions import PermissionDenied
 
 class PinnedItemListView(generics.ListAPIView):
     serializer_class = PinnedItemSerializer
@@ -30,3 +31,13 @@ class PinnedItemEnrichedListView(generics.ListAPIView):
             .order_by("created_at")
             .only("id", "item_type", "item_id", "created_at", "user")  # lean fetch
         )
+
+class PinnedItemDeleteView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+    queryset = PinnedItem.objects.all()
+
+    def perform_destroy(self, instance):
+        if instance.user != self.request.user:
+            raise PermissionDenied("You do not have permission to delete this item.")
+        instance.delete()

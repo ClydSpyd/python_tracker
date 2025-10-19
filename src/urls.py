@@ -9,4 +9,6 @@ urlpatterns = [
     path('api/habits/', include('habits.urls')),
     path('api/focus/', include('focus.urls')),
     path("api/wiki/", include("wiki.urls")),
+    path("api/checkin/", include("checkin.urls")),
+    path("api/stats/", include("stats.urls")),
 ]
