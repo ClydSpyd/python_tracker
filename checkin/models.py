@@ -5,7 +5,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 class CheckIn(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='checkins')
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField()
     mood = models.IntegerField(validators=[MaxValueValidator(5)])
     energy_level =  models.IntegerField(validators=[MaxValueValidator(100)])
     focus_level = models.IntegerField(validators=[MaxValueValidator(100)])

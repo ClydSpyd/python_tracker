@@ -14,11 +14,10 @@ class CheckInListCreateView(generics.ListCreateAPIView):
     authentication_classes = [CookieJWTAuthentication]
 
     def get_queryset(self):
-        date_param = self.request.query_params.get('date')
-        queryset = CheckIn.objects.filter(user=self.request.user).order_by('-date')
+        date_param = self.request.query_params.get('date', None)
         if date_param:
-            queryset = queryset.filter(date=date_param)
-        return queryset
+            return CheckIn.objects.filter(user=self.request.user, date=date_param).order_by('-date')
+        return CheckIn.objects.filter(user=self.request.user).order_by('-date')
 
     def create(self, request, *args, **kwargs):
         today = request.query_params.get('date', date.today())
