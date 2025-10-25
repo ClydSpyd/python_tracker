@@ -2,37 +2,37 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from habits.services import get_user_habits_with_completions
 from users.authentication import CookieJWTAuthentication
-from habits.models import Habit, HabitRecord
 from django.utils.timezone import now
 from django.utils.timezone import localdate
 from datetime import timedelta
+from habits.serializers import HabitWithRecordsSerializer
+from checkin.models import CheckIn
+from django.db.models import Avg
 
-def get_habit_stats(user):
+def get_habit_stats(user, week_offset=0):
     today = localdate()
-    start_of_week = today - timedelta(days=today.weekday())
-    end_of_week = start_of_week + timedelta(days=6)
-    habits = Habit.objects.filter(user=user)
-    total_target = sum(habit.target for habit in habits)
-    completions = HabitRecord.objects.filter(
-        habit__in=habits,
-        date__range=[start_of_week, end_of_week]
-    ).count()
-    return {
-        "total_target": total_target,
-        "total_completions_this_week": completions
-    }
+    start_of_week = today - timedelta(days=today.weekday()) + timedelta(weeks=week_offset)
+    habits_with_records = get_user_habits_with_completions(user, start_of_week, 7)
+    serializer = HabitWithRecordsSerializer(habits_with_records, many=True)
+    return_habits = []
+    for habit in serializer.data:
+        title = habit.get('title')
+        target = habit.get('target', 0)
+        records = habit.get('records', [])
+        return_habits.append({
+            "title": title,
+            "target": target,
+            "completions": records
+        })
+    return return_habits
 
-def get_checkin_stats(user):
-    from checkin.models import CheckIn
-    from django.db.models import Avg
+def get_checkin_stats(user, week_offset=0):
     today = localdate()
-    print("today in stats:", today)
     # Start week on Monday
-    start_of_week = today - timedelta(days=today.weekday())
-    print("start_of_week in stats:", start_of_week)
+    start_of_week = today - timedelta(days=today.weekday()) + timedelta(weeks=week_offset)
     end_of_week = start_of_week + timedelta(days=6)
-    print("end_of_week in stats:", end_of_week)
     checkins = CheckIn.objects.filter(
         user=user,
         date__range=[start_of_week, end_of_week]
@@ -69,8 +69,10 @@ class WeekAtGlanceStatsView(APIView):
     authentication_classes = [CookieJWTAuthentication]
 
     def get(self, request):
-        habit_stats = get_habit_stats(request.user)
-        checkin_stats = get_checkin_stats(request.user)
+        week_offset = int(request.query_params.get('week_offset', 0))
+        print("Week Offset:", week_offset)
+        habit_stats = get_habit_stats(request.user, week_offset)
+        checkin_stats = get_checkin_stats(request.user, week_offset)
         return Response(
             {
                 "habits": habit_stats,
