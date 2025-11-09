@@ -68,3 +68,16 @@ class TaskListView(APIView):
         tasks = Task.objects.filter(user=request.user)
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)
+
+class DeleteTaskView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+
+    def delete(self, request, task_id):
+        task = get_object_or_404(Task, id=task_id, user=request.user)
+        task.delete()
+        return Response(
+            {"message": "Task deleted successfully"},
+            status=status.HTTP_200_OK
+        )   
+    

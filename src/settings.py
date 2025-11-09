@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'wiki',
     'checkin',
     'stats',
+    'ideas',
+    'spaces',
 ]
 
 REST_FRAMEWORK = {

@@ -11,4 +11,6 @@ urlpatterns = [
     path("api/wiki/", include("wiki.urls")),
     path("api/checkin/", include("checkin.urls")),
     path("api/stats/", include("stats.urls")),
+    path("api/ideas/", include("ideas.urls")),
+    path("api/spaces/", include("spaces.urls")),
 ]

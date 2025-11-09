@@ -11,7 +11,7 @@ class FocusItemSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
 
         # ✅ Only check the limit when creating a new item
-        if self.instance is None and user.focus_items.count() >= 3:
-            raise serializers.ValidationError("You can only have up to 3 focus items.")
+        if self.instance is None and user.focus_items.count() >= 4:
+            raise serializers.ValidationError("You can only have up to 4 focus items.")
 
         return data
