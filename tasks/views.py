@@ -22,7 +22,7 @@ class AddTaskView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        task_status = "todo"
+        task_status = request.data.get("status", "todo")
 
         # Create the task using the serializer
         task_data = {
