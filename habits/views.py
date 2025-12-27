@@ -21,6 +21,7 @@ class CreateHabitView(APIView):
         description = request.data.get("description")
         target = request.data.get("target")
         icon = request.data.get("icon")
+        color_scheme = request.data.get("colorScheme")
 
 
         # Validate required fields
@@ -35,7 +36,8 @@ class CreateHabitView(APIView):
             "title": title,
             "description": description,
             "target": target,
-            "icon": icon
+            "icon": icon,
+            "color_scheme": color_scheme,
         }
 
         serializer = HabitSerializer(data=habit_data)

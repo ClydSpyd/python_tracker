@@ -8,8 +8,9 @@ class Habit(models.Model):
     description = models.TextField()
     target = models.IntegerField()  # Target times per week
     icon = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateField(auto_now_add=True)
+    enabled_at = models.DateField(default=date.today)
+    disabled_at = models.DateField(null=True, blank=True)
     color_scheme = models.IntegerField()  # idx for selected color scheme in FE colorCombos array
 
     def __str__(self):

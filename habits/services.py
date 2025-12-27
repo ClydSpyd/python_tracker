@@ -1,7 +1,8 @@
 from datetime import timedelta
 from django.utils.timezone import now
 from .models import Habit, HabitRecord
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
+
 
 def get_week_date_range(target_date=None):
     if not target_date:
@@ -20,8 +21,13 @@ def get_user_habits_with_completions(user, start_date, range_days):
 
     habit_records_qs = HabitRecord.objects.filter(date__range=(start_date, end_date))
 
-    habits = Habit.objects.filter(user=user).prefetch_related(
-        Prefetch('records', queryset=habit_records_qs)
-    )
+    habits = Habit.objects.filter(
+            user=user,
+            enabled_at__lte=end_date,
+        ).filter(
+            Q(disabled_at__isnull=True) | Q(disabled_at__gt=start_date)
+        ).prefetch_related(
+            Prefetch('records', queryset=habit_records_qs)
+        )
 
     return habits

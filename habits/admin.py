@@ -9,10 +9,10 @@ class HabitRecordInline(admin.TabularInline):
 
 class HabitAdmin(admin.ModelAdmin):
     # Display these fields in the list view in the admin interface
-    list_display = ['title', 'description','target', 'user']
+    list_display = ['title', 'description','target', 'user', 'created_at', 'enabled_at', 'disabled_at', 'color_scheme']
     
-    # Make 'created_at' and 'updated_at' non-editable in the admin form
-    readonly_fields = ['created_at', 'updated_at']
+    # Make 'created_at' non-editable in the admin form
+    readonly_fields = ['created_at']
     
     # Add the inline for HabitRecord
     inlines = [HabitRecordInline] 

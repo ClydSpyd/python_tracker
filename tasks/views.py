@@ -14,6 +14,7 @@ class AddTaskView(APIView):
     def post(self, request):
         title = request.data.get("title")
         description = request.data.get("description")
+        space_id = request.data.get("space_id")
 
         # Validate required fields
         if not title or not description:
@@ -28,7 +29,8 @@ class AddTaskView(APIView):
         task_data = {
             "title": title,
             "description": description,
-            "status": task_status
+            "status": task_status,
+            "space_id": space_id,
         }
 
         serializer = TaskSerializer(data=task_data)
