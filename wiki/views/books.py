@@ -42,3 +42,16 @@ class BookSaveView(APIView):
         ser.is_valid(raise_exception=True)
         book = ser.save(user=request.user)
         return Response(BookSerializer(book).data, status=status.HTTP_201_CREATED)
+    
+    @transaction.atomic
+    def delete(self, request):
+        olid = request.data.get("olid")
+        if not olid:
+            return Response({"detail": "olid is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            book = request.user.book_set.get(olid=olid)
+            book.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except request.user.books.model.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)

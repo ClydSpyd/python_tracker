@@ -17,6 +17,7 @@ class MediaListView(generics.ListAPIView):
     serializer_class = MovieSerializer
     queryset = Movie.objects.all().order_by("title")
 
+
 class MediaCreateView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [CookieJWTAuthentication]
@@ -39,6 +40,23 @@ class MediaCreateView(APIView):
         ser.is_valid(raise_exception=True)
         obj = ser.save(user=request.user)
         return Response(serializer_class(obj).data, status=status.HTTP_201_CREATED)
+    
+    @transaction.atomic
+    def delete(self, request):
+        item_type = (request.data.get("type") or request.query_params.get("type") or "movie").lower()
+        imdb_id = request.data.get("imdbId") or request.data.get("imdb_id") or request.query_params.get("imdbId") or request.query_params.get("imdb_id")
+
+        print("DELETE media request:", item_type, imdb_id)
+        if not imdb_id:
+            return Response({"detail": "imdbId is required."}, status=400)
+
+        model = Series if item_type == "series" else Movie
+        try:
+            obj = model.objects.get(imdb_id=imdb_id, user=request.user)
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except model.DoesNotExist:
+            return Response({"detail": "Not found."}, status=404)
 
 from django.conf import settings
 
