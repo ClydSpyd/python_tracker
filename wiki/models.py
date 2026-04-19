@@ -19,6 +19,9 @@ class MediaBase(models.Model):
     imdb_id = models.CharField(max_length=20, unique=True)
     ratings = models.JSONField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # my_rating = models.PositiveSmallIntegerField(null=True, blank=True)
+    # my_completed = models.CharField(max_length=4, null=True, blank=True)
+    # my_notes = models.TextField(null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -82,7 +85,7 @@ class Book(models.Model):
         ordering = ['title']
         verbose_name_plural = "Books"
         constraints = [
-            models.UniqueConstraint(fields=['title'], name='unique_title')
+            models.UniqueConstraint(fields=['user','title'], name='unique_user_title')
         ]
 
 class Link(models.Model):

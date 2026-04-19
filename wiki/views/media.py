@@ -8,6 +8,7 @@ from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import requests
+from django.conf import settings
 
 from ..models import Movie, Series
 from ..serializers import MovieSerializer, SeriesSerializer
@@ -58,7 +59,6 @@ class MediaCreateView(APIView):
         except model.DoesNotExist:
             return Response({"detail": "Not found."}, status=404)
 
-from django.conf import settings
 
 @csrf_exempt
 @require_GET

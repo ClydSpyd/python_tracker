@@ -17,7 +17,8 @@ def get_user_habits_with_completions(user, start_date, range_days):
     Given a start_date (date object), returns the user's habits
     and their HabitRecords from start_date (inclusive) for the next X days.
     """
-    end_date = start_date + timedelta(days=range_days - 1)
+    end_date = start_date + timedelta(days=range_days)
+    # end_date = start_date + timedelta(days=range_days - 1)
 
     habit_records_qs = HabitRecord.objects.filter(date__range=(start_date, end_date))
 
