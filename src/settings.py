@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'stats',
     'ideas',
     'spaces',
+    'activity',
 ]
 
 REST_FRAMEWORK = {
