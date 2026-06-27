@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from users.authentication import CookieJWTAuthentication
 
@@ -55,3 +55,11 @@ class BookSaveView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except request.user.books.model.DoesNotExist:
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+
+class BookDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+    serializer_class = BookSerializer
+
+    def get_queryset(self):
+        return self.request.user.book_set.order_by("title")

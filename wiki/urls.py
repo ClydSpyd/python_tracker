@@ -6,23 +6,26 @@ from wiki.views import (
     WikiItemsListView, 
     BookSearchView, 
     BookSaveView,
+    BookDetailsView,
     LinkCreateView,
     LinkListView,
     PinnedItemCreateView,
     PinnedItemListView,
-    PinnedItemEnrichedListView
+    PinnedItemEnrichedListView,
+    MediaDetailsView,
+    PinnedItemDeleteView
     )
-from wiki.views.media import MediaListView
-from wiki.views.pinned import PinnedItemDeleteView
 from wiki.views.quotes import DeleteQuoteView
 
 urlpatterns = [
     path("", WikiItemsListView.as_view(), name="wiki_items_list"),
     path("media/", MediaCreateView.as_view(), name="media_add_or_delete"),
+    path("media/<int:pk>/", MediaDetailsView.as_view(), name="media_details"),
     path("quotes/add/", QuoteCreateView.as_view(), name="quote_add"),
     path("quotes/delete/<int:pk>/", DeleteQuoteView.as_view(), name="quote_delete"),
     path("books/", BookSaveView.as_view(), name="book_add_or_delete"),
     path("books/search/", BookSearchView.as_view(), name="book_search"),
+    path("books/<int:pk>/", BookDetailsView.as_view(), name="book_details"),
     path("quotes/", QuoteListView.as_view(), name="quote_list"),
     path("omdb/search/", search_omdb, name="search_omdb"),
     path("links/add/", LinkCreateView.as_view(), name="link_add"),

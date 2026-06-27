@@ -1,15 +1,15 @@
-from .media import MediaListView, MediaCreateView, search_omdb
+from .media import MediaListView, MediaCreateView, search_omdb, MediaDetailsView
 from .quotes import QuoteListView, QuoteCreateView
-from .books import BookSearchView, BookSaveView
+from .books import BookSearchView, BookSaveView, BookDetailsView
 from .root import WikiItemsListView
 from .links import LinkListView, LinkCreateView
-from .pinned import PinnedItemListView, PinnedItemCreateView, PinnedItemEnrichedListView
+from .pinned import PinnedItemListView, PinnedItemCreateView, PinnedItemEnrichedListView, PinnedItemDeleteView
 
 __all__ = [
-    "MediaListView", "MediaCreateView", "search_omdb",
+    "MediaListView", "MediaCreateView", "search_omdb", "MediaDetailsView",
     "QuoteListView", "QuoteCreateView",
-    "BookSearchView", "BookSaveView", 
+    "BookSearchView", "BookSaveView", "BookDetailsView",
     "WikiItemsListView",
     "LinkListView", "LinkCreateView",
-    "PinnedItemListView", "PinnedItemCreateView", "PinnedItemEnrichedListView"
+    "PinnedItemListView", "PinnedItemCreateView", "PinnedItemEnrichedListView", "PinnedItemDeleteView"
 ]

@@ -10,8 +10,8 @@ from django.http import JsonResponse
 import requests
 from django.conf import settings
 
-from ..models import Movie, Series
-from ..serializers import MovieSerializer, SeriesSerializer
+from ..models import Movie, Series, Book
+from ..serializers import MovieSerializer, SeriesSerializer, BookSerializer
 from ..services.omdb_client import fetch_by_imdb_id, map_omdb_payload, OmdbError
 
 class MediaListView(generics.ListAPIView):
@@ -59,6 +59,29 @@ class MediaCreateView(APIView):
         except model.DoesNotExist:
             return Response({"detail": "Not found."}, status=404)
 
+# retreive, update, delete individual media tiems
+class MediaDetailsView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [CookieJWTAuthentication]
+    
+    def get_serializer_class(self):
+        item_type = self.request.query_params.get("type", "movie").lower()
+        if item_type == "series":
+            return SeriesSerializer
+        if item_type == "book":
+            return BookSerializer
+        return MovieSerializer
+
+    def get_queryset(self):
+        type_param = self.request.query_params.get("type", "movie").lower()
+        if type_param == "series":
+            model = Series
+        elif type_param == "book":
+            model = Book
+        else:
+            model = Movie
+        print("MediaDetailsView get_queryset called" + f"with type={type_param} for user {self.request.user}")
+        return model.objects.order_by("title")
 
 @csrf_exempt
 @require_GET

@@ -6,7 +6,7 @@ class MediaBaseSerializer(serializers.ModelSerializer):
         fields = [
             'id','title', 'year', 'released', 'runtime', 'genre', 'director', 'actors',
             'plot', 'language', 'poster_url', 'metascore', 'imdb_rating', 'imdb_votes',
-            'imdb_id', 'ratings', 'created_at'
+            'imdb_id', 'ratings', 'created_at', 'my_rating', 'my_completed', 'my_notes'
         ]
         abstract = True
 
@@ -37,7 +37,7 @@ class QuoteSerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = ['id', 'title', 'olid', 'created_at', 'cover', 'year', 'edition_key', 'work_key', 'description', 'authors']
+        fields = ['id', 'title', 'olid', 'created_at', 'cover', 'year', 'edition_key', 'work_key', 'description', 'authors', 'my_rating', 'my_completed', 'my_notes']
         read_only_fields = ['created_at']
 
     def create(self, validated_data):
